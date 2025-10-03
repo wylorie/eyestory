@@ -34,6 +34,9 @@
     <section class="words" aria-labelledby="wordsTitle">
       <h2 id="wordsTitle" class="section__title">Look at a word and blink to select (need 3)</h2>
       <div id="wordGrid" class="word-grid" role="list"></div>
+          <div class="word-actions">
+        <button id="btnRefreshBottom" class="btn" data-gazeable="true">New Words</button>
+      </div>
       <div class="selected" aria-live="polite">
         <h3 class="selected__title">Selected Words</h3>
         <div id="selectedList" class="selected__chips" role="list"></div>
@@ -82,6 +85,7 @@
  <script src="script.js?v=2"></script>
 </body>
 </html>
+
 
 
 
