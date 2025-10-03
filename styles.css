@@ -20,7 +20,7 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
 .brand__title{font-size:28px;margin:0}
 .tagline{margin:6px 0 12px;color:var(--muted)}
 .controls{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 12px}
-.btn{background:var(--bg-elev);color:var(--text);border:1px solid rgba(255,255,255,.08);padding:10px 14px;border-radius:10px;cursor:pointer;transition:transform .08s ease,background .2s ease,box-shadow .2s ease;box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.word-tile{user-select:none;padding:16px 14px;text-align:center;background:var(--tile);border:1px solid rgba(255,255,255,.06);border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.18);transition:transform .07s ease,background .2s ease,box-shadow .2s ease,border-color .2s ease;color:var(--text)}
 .btn:focus{outline:3px solid var(--primary);outline-offset:2px}
 .btn:hover{transform:translateY(-1px);background:var(--tile-hover)}
 .btn:active{transform:translateY(0)}
@@ -52,6 +52,7 @@ word-tile{user-select:none;padding:16px 14px;text-align:center;background:var(--
 .spinner{width:32px;height:32px;border-radius:50%;border:3px solid rgba(255,255,255,.22);border-top-color:var(--primary);animation:spin 1s linear infinite;margin:0 auto 10px}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.btn,.word-tile{transition:none}}
+
 
 
 
