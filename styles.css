@@ -36,6 +36,8 @@ word-tile{user-select:none;padding:16px 14px;text-align:center;background:var(--
 .word-tile[data-targeted="true"]{border-color:var(--primary);box-shadow:0 0 0 3px rgba(110,168,255,.25),0 10px 28px rgba(0,0,0,.24)}
 .word-tile[aria-selected="true"]{background:var(--tile-focus);border-color:var(--accent);box-shadow:0 0 0 2px rgba(155,255,207,.35),0 10px 28px rgba(0,0,0,.24)}
 .selected{margin-top:14px}
+.word-tile{user-select:none;padding:16px 14px;text-align:center;background:var(--tile);border:1px solid rgba(255,255,255,.06);border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.18);transition:transform .07s ease,background .2s ease,box-shadow .2s ease,border-color .2s ease;color:#ffffff}
+.theme--light .word-tile{color:var(--text)}
 .selected__chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{padding:6px 10px;border-radius:999px;background:var(--chip);color:var(--text);border:1px solid rgba(255,255,255,.08)}
 .story-actions{margin:18px 0 10px}
@@ -50,5 +52,6 @@ word-tile{user-select:none;padding:16px 14px;text-align:center;background:var(--
 .spinner{width:32px;height:32px;border-radius:50%;border:3px solid rgba(255,255,255,.22);border-top-color:var(--primary);animation:spin 1s linear infinite;margin:0 auto 10px}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.btn,.word-tile{transition:none}}
+
 
 
