@@ -43,6 +43,7 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
 .selected__chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{padding:6px 10px;border-radius:999px;background:var(--chip);color:var(--text);border:1px solid rgba(255,255,255,.08)}
 .story-actions{margin:18px 0 10px}
+.word-actions{display:flex;justify-content:flex-end;margin-top:8px}
 .story{margin-top:8px;padding:16px;background:var(--bg-elev);border-radius:14px;border:1px solid rgba(255,255,255,.06)}
 .story__header{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .story__text{white-space:pre-wrap;line-height:1.75;margin-top:12px}
@@ -54,6 +55,7 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
 .spinner{width:32px;height:32px;border-radius:50%;border:3px solid rgba(255,255,255,.22);border-top-color:var(--primary);animation:spin 1s linear infinite;margin:0 auto 10px}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.btn,.word-tile{transition:none}}
+
 
 
 
