@@ -61,8 +61,14 @@
   }
   requestAnimationFrame(tickBg);
 
-   // Theme: fixed to light; no toggle
-
+  // Theme toggle
+  btnTheme.addEventListener('click', ()=>{
+    const isLight = body.classList.toggle('theme--light');
+    btnTheme.setAttribute('aria-pressed', String(isLight));
+    btnTheme.textContent = isLight ? 'Light Mode' : 'Dark Mode';
+  }); 
+ 
+  
   // Words source and grid
   const WORD_BANK = [
     'alien','philosophical','gadget','science','astronomy','nebula','quantum','voyage','time','memory','cosmic','signal','horizon','myth','machine','dream','ocean','forest','ruins','android','empathy','gravity','satellite','orbit','comet','asteroid','lunar','martian','plasma','fractals','entropy','language','echo','whisper','labyrinth','symphony','artifact','chronicle','nocturnal','bioluminescent','equation','paradox','singularity','nanotech','portal','renaissance','utopia','dystopia','serendipity','constellation','aurora','cipher','archive','pilgrim','oracle','monolith','wyrm','phoenix','storm','mirage'
@@ -338,6 +344,7 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
+
 
 
 
