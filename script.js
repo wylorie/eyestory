@@ -95,6 +95,16 @@
       tile.addEventListener('click', ()=> selectWord(w, tile));
       wordGrid.appendChild(tile);
     });
+      // Append inline refresh tile at the end of the grid
+    const refreshTile = document.createElement('button');
+    refreshTile.id = 'wordRefreshTile';
+    refreshTile.className = 'word-tile';
+    refreshTile.type = 'button';
+    refreshTile.textContent = 'New Words';
+    refreshTile.setAttribute('role','listitem');
+    refreshTile.setAttribute('data-gazeable','true');
+    refreshTile.addEventListener('click', refreshWords);
+    wordGrid.appendChild(refreshTile);
   }
 
   function renderSelected(){
@@ -369,6 +379,7 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
+
 
 
 
