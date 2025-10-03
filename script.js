@@ -107,6 +107,15 @@
     wordGrid.appendChild(refreshTile);
   }
 
+  // Delegate clicks to refresh tile to survive re-renders
+  wordGrid.addEventListener('click', (ev)=>{
+    const target = ev.target && (ev.target.closest ? ev.target.closest('#wordRefreshTile') : null);
+    if(target){
+      ev.preventDefault();
+      refreshWords();
+    }
+  });
+
   function renderSelected(){
     selectedList.innerHTML = '';
     selectedWords.forEach(w => {
@@ -379,6 +388,7 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
+
 
 
 
