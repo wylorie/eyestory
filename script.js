@@ -18,6 +18,7 @@
 
   const btnStart = document.getElementById('btnStart');
   const btnRefresh = document.getElementById('btnRefresh');
+    const btnRefreshBottom = document.getElementById('btnRefreshBottom');
   const btnGenerate = document.getElementById('btnGenerate');
   const btnPlay = document.getElementById('btnPlay');
   const btnPause = document.getElementById('btnPause');
@@ -368,5 +369,6 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
+
 
 
