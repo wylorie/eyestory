@@ -61,7 +61,6 @@
     requestAnimationFrame(tickBg);
   }
   requestAnimationFrame(tickBg);
-
   // Theme toggle
   const btnTheme = document.getElementById('btnTheme');
   if(btnTheme){
@@ -70,6 +69,7 @@
       btnTheme.setAttribute('aria-pressed', String(isLight));
       btnTheme.textContent = isLight ? 'Light Mode' : 'Dark Mode';
     });
+  }
   }
 
   // Words source and grid
@@ -369,6 +369,7 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
+
 
 
 
