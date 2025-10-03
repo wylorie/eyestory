@@ -62,13 +62,15 @@
   requestAnimationFrame(tickBg);
 
   // Theme toggle
-  btnTheme.addEventListener('click', ()=>{
-    const isLight = body.classList.toggle('theme--light');
-    btnTheme.setAttribute('aria-pressed', String(isLight));
-    btnTheme.textContent = isLight ? 'Light Mode' : 'Dark Mode';
-  }); 
- 
-  
+  const btnTheme = document.getElementById('btnTheme');
+  if(btnTheme){
+    btnTheme.addEventListener('click', ()=>{
+      const isLight = body.classList.toggle('theme--light');
+      btnTheme.setAttribute('aria-pressed', String(isLight));
+      btnTheme.textContent = isLight ? 'Light Mode' : 'Dark Mode';
+    });
+  }
+
   // Words source and grid
   const WORD_BANK = [
     'alien','philosophical','gadget','science','astronomy','nebula','quantum','voyage','time','memory','cosmic','signal','horizon','myth','machine','dream','ocean','forest','ruins','android','empathy','gravity','satellite','orbit','comet','asteroid','lunar','martian','plasma','fractals','entropy','language','echo','whisper','labyrinth','symphony','artifact','chronicle','nocturnal','bioluminescent','equation','paradox','singularity','nanotech','portal','renaissance','utopia','dystopia','serendipity','constellation','aurora','cipher','archive','pilgrim','oracle','monolith','wyrm','phoenix','storm','mirage'
@@ -177,6 +179,24 @@
     if(!gazeActive){ startGaze(); }
   });
 
+  // Auto-start WebGazer when page is ready and secure
+  function tryAutoStartGaze(){
+    const secure = window.isSecureContext === true;
+    if(!secure){
+      statusTracking.textContent = 'Use HTTPS to start';
+      return;
+    }
+    if(typeof window.webgazer === 'undefined'){
+      // Library not yet ready; retry shortly
+      setTimeout(tryAutoStartGaze, 400);
+      return;
+    }
+    if(!gazeActive){
+      startGaze();
+    }
+  }
+  window.addEventListener('load', tryAutoStartGaze);
+
   // Blink detection via MediaPipe FaceMesh
   // Compute simple eye aspect ratio using key landmark pairs
   let faceMesh; let camera; let blinkState = {closed:false,lastChange:0};
@@ -254,6 +274,10 @@
       });
       await camera.start();
       statusBlink.textContent = 'Ready';
+      // Auto-start gaze tracking once the camera pipeline is ready
+      if(!gazeActive){
+        startGaze();
+      }
     }catch(err){
       console.error(err);
       statusBlink.textContent = 'Error';
@@ -344,7 +368,5 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
-
-
 
 
