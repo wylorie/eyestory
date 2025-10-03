@@ -18,7 +18,6 @@
 
   const btnStart = document.getElementById('btnStart');
   const btnRefresh = document.getElementById('btnRefresh');
-  const btnTheme = document.getElementById('btnTheme');
   const btnGenerate = document.getElementById('btnGenerate');
   const btnPlay = document.getElementById('btnPlay');
   const btnPause = document.getElementById('btnPause');
@@ -62,12 +61,7 @@
   }
   requestAnimationFrame(tickBg);
 
-  // Theme toggle
-  btnTheme.addEventListener('click', ()=>{
-    const isLight = body.classList.toggle('theme--light');
-    btnTheme.setAttribute('aria-pressed', String(isLight));
-    btnTheme.textContent = isLight ? 'Light Mode' : 'Dark Mode';
-  });
+   // Theme: fixed to light; no toggle
 
   // Words source and grid
   const WORD_BANK = [
@@ -344,5 +338,6 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
+
 
 
