@@ -123,7 +123,11 @@
       selectedList.appendChild(chip);
     });
     statusSelected.textContent = `${selectedWords.length}/3`;
-    btnGenerate.disabled = selectedWords.length !== 3;
+    
+    // Auto-generate story when 3 words are selected
+    if(selectedWords.length === 3){
+      generateStory();
+    }
   }
 
   function refreshWords(){
@@ -384,7 +388,7 @@
     return sentences.join(' ');
   }
 
-  btnGenerate.addEventListener('click', async ()=>{
+  async function generateStory(){
     if(selectedWords.length !== 3) return;
     overlay.hidden = false;
     try{
@@ -396,7 +400,7 @@
     } finally {
       overlay.hidden = true;
     }
-  });
+  }
 
   // Text-to-Speech
   let utterance = null;
@@ -420,5 +424,6 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
+
 
 
