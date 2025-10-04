@@ -18,7 +18,6 @@
 
   const btnStart = document.getElementById('btnStart');
   const btnRefresh = document.getElementById('btnRefresh');
-    const btnRefreshBottom = document.getElementById('btnRefreshBottom');
   const btnGenerate = document.getElementById('btnGenerate');
   const btnPlay = document.getElementById('btnPlay');
   const btnPause = document.getElementById('btnPause');
@@ -61,6 +60,7 @@
     requestAnimationFrame(tickBg);
   }
   requestAnimationFrame(tickBg);
+
   // Theme toggle
   const btnTheme = document.getElementById('btnTheme');
   if(btnTheme){
@@ -69,7 +69,6 @@
       btnTheme.setAttribute('aria-pressed', String(isLight));
       btnTheme.textContent = isLight ? 'Light Mode' : 'Dark Mode';
     });
-  }
   }
 
   // Words source and grid
@@ -95,7 +94,7 @@
       tile.addEventListener('click', ()=> selectWord(w, tile));
       wordGrid.appendChild(tile);
     });
-      // Append inline refresh tile at the end of the grid
+    // Append inline refresh tile at the end of the grid
     const refreshTile = document.createElement('button');
     refreshTile.id = 'wordRefreshTile';
     refreshTile.className = 'word-tile';
@@ -130,8 +129,8 @@
 
   function refreshWords(){
     selectedWords = [];
-     console.log('Generated words:', currentWords); // Debug log
     currentWords = pickWords(18);
+    console.log('Generated words:', currentWords); // Debug log
     renderGrid();
     renderSelected();
     storySection.hidden = true;
@@ -161,7 +160,7 @@
       await webgazer.setRegression('ridge')
         .setGazeListener(gazeListener)
         .showVideoPreview(false)
-       .showPredictionPoints(true)
+        .showPredictionPoints(true)
         .begin();
       gazeActive = true;
       statusTracking.textContent = 'Active';
@@ -389,11 +388,6 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
-
-
-
-
-
 
 
 
