@@ -130,6 +130,7 @@
 
   function refreshWords(){
     selectedWords = [];
+     console.log('Generated words:', currentWords); // Debug log
     currentWords = pickWords(18);
     renderGrid();
     renderSelected();
@@ -388,6 +389,7 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
+
 
 
 
