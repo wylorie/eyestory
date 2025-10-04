@@ -31,6 +31,12 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
 .section__title{margin:18px 0 10px}
 .word-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
 .word-tile{user-select:none;padding:20px 24px;text-align:center;background:var(--tile);border:1px solid rgba(255,255,255,.06);border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.18);transition:transform .07s ease,background .2s ease,box-shadow .2s ease,border-color .2s ease;color:#ffffff;font-size:1.05rem;min-height:56px}
+#wordRefreshTile{grid-column:span 2}
+
+/* Hide WebGazer prediction points outside word grid */
+.webgazer-prediction-points {
+  clip-path: polygon(0% 0%, 0% 0%, 0% 0%, 0% 0%);
+}
 .theme--light .word-tile{color:var(--text)}
 .theme--light .word-tile{color:var(--text)}
 .word-tile:hover{transform:translateY(-2px);background:var(--tile-hover)}
@@ -52,5 +58,4 @@ body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetic
 .spinner{width:32px;height:32px;border-radius:50%;border:3px solid rgba(255,255,255,.22);border-top-color:var(--primary);animation:spin 1s linear infinite;margin:0 auto 10px}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.btn,.word-tile{transition:none}}
-
 
