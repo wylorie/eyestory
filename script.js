@@ -32,7 +32,6 @@
   resizeCanvas();
   function createParticles(){
     const count = Math.min(120, Math.floor((canvas.width*canvas.height)/30000));
-    #wordRefreshTile{grid-column:span 2}
     particles = Array.from({length: count}, () => ({
       x: Math.random()*canvas.width,
       y: Math.random()*canvas.height,
@@ -172,11 +171,20 @@
         .showPredictionPoints(true)
         .begin();
       
-      // Constrain prediction points to word grid area
+      // Constrain prediction points to word grid area only
       const rect = wordGrid.getBoundingClientRect();
       webgazer.setPredictionPointsFilter((x, y) => {
+        // Only show red dot within the word grid bounds
         return x >= rect.left && x <= rect.right && 
                y >= rect.top && y <= rect.bottom;
+      });
+      
+      // Also hide prediction points outside the grid
+      webgazer.showPredictionPoints(true);
+      webgazer.setPredictionPointsFilter((x, y) => {
+        const gridRect = wordGrid.getBoundingClientRect();
+        return x >= gridRect.left && x <= gridRect.right && 
+               y >= gridRect.top && y <= gridRect.bottom;
       });
       
       gazeActive = true;
@@ -405,7 +413,6 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
-
 
 
 
