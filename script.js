@@ -126,6 +126,7 @@
     
     // Auto-generate story when 3 words are selected
     if(selectedWords.length === 3){
+      console.log('Auto-generating story with words:', selectedWords);
       generateStory();
     }
   }
@@ -144,6 +145,7 @@
     if(selectedWords.length >= 3) return;
     selectedWords.push(word);
     tile.setAttribute('aria-selected','true');
+    console.log('Selected words:', selectedWords.length, selectedWords);
     renderSelected();
   }
 
@@ -424,6 +426,5 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
-
 
 
