@@ -61,15 +61,7 @@
   }
   requestAnimationFrame(tickBg);
 
-  // Theme toggle
-  const btnTheme = document.getElementById('btnTheme');
-  if(btnTheme){
-    btnTheme.addEventListener('click', ()=>{
-      const isLight = body.classList.toggle('theme--light');
-      btnTheme.setAttribute('aria-pressed', String(isLight));
-      btnTheme.textContent = isLight ? 'Light Mode' : 'Dark Mode';
-    });
-  }
+  // Theme: fixed to dark mode
 
   // Words source and grid
   const WORD_BANK = [
