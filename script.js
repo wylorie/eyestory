@@ -170,6 +170,14 @@
         .showVideoPreview(false)
         .showPredictionPoints(true)
         .begin();
+      
+      // Constrain prediction points to word grid area
+      const rect = wordGrid.getBoundingClientRect();
+      webgazer.setPredictionPointsFilter((x, y) => {
+        return x >= rect.left && x <= rect.right && 
+               y >= rect.top && y <= rect.bottom;
+      });
+      
       gazeActive = true;
       statusTracking.textContent = 'Active';
     }catch(err){
@@ -396,5 +404,6 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
+
 
 
