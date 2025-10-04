@@ -89,7 +89,10 @@
       tile.setAttribute('role','listitem');
       tile.setAttribute('data-gazeable','true');
       tile.setAttribute('aria-selected','false');
-      tile.addEventListener('click', ()=> selectWord(w, tile));
+      tile.addEventListener('click', ()=> {
+        console.log('Word clicked:', w);
+        selectWord(w, tile);
+      });
       wordGrid.appendChild(tile);
     });
     
