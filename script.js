@@ -208,6 +208,13 @@
   function gazeListener(data, timestamp){
     if(!data) return;
     const x = data.x; const y = data.y;
+    
+    // Only process gaze if it's within word grid bounds
+    const rect = wordGrid.getBoundingClientRect();
+    if(x < rect.left || x > rect.right || y < rect.top || y > rect.bottom){
+      return; // Don't process gaze outside word grid
+    }
+    
     const el = elementAtClient(x,y);
     if(el !== lastTarget){
       clearTargetVisual(lastTarget);
@@ -413,6 +420,5 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
-
 
 
