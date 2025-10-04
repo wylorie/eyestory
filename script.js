@@ -82,7 +82,13 @@
   function pickWords(count){ return shuffle([...WORD_BANK]).slice(0,count); }
 
   function renderGrid(){
+    if (!wordGrid) {
+      console.error('wordGrid element not found!');
+      return;
+    }
     wordGrid.innerHTML = '';
+    console.log('Rendering', currentWords.length, 'words');
+    
     currentWords.forEach(w => {
       const tile = document.createElement('button');
       tile.className = 'word-tile';
@@ -94,6 +100,7 @@
       tile.addEventListener('click', ()=> selectWord(w, tile));
       wordGrid.appendChild(tile);
     });
+    
     // Append inline refresh tile at the end of the grid
     const refreshTile = document.createElement('button');
     refreshTile.id = 'wordRefreshTile';
@@ -145,6 +152,15 @@
   }
 
   btnRefresh.addEventListener('click', refreshWords);
+  
+  // Ensure words are loaded on page load
+  window.addEventListener('load', () => {
+    if (currentWords.length === 0) {
+      console.log('No words found, generating...');
+      refreshWords();
+    }
+  });
+  
   refreshWords();
 
   // Gaze targeting via WebGazer
@@ -388,6 +404,5 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
-
 
 
