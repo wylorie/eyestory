@@ -32,6 +32,7 @@
   resizeCanvas();
   function createParticles(){
     const count = Math.min(120, Math.floor((canvas.width*canvas.height)/30000));
+    #wordRefreshTile{grid-column:span 2}
     particles = Array.from({length: count}, () => ({
       x: Math.random()*canvas.width,
       y: Math.random()*canvas.height,
@@ -404,6 +405,7 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
+
 
 
 
