@@ -160,7 +160,7 @@
       await webgazer.setRegression('ridge')
         .setGazeListener(gazeListener)
         .showVideoPreview(false)
-        .showPredictionPoints(false)
+       .showPredictionPoints(true)
         .begin();
       gazeActive = true;
       statusTracking.textContent = 'Active';
@@ -388,6 +388,7 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
+
 
 
 
