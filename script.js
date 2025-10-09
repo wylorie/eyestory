@@ -143,9 +143,8 @@
   }
 
   function refreshWords(){
-    // Clear any active locks and dwell when refreshing
+    // Clear any active locks when refreshing
     clearLock();
-    clearDwell();
     selectedWords = [];
     currentWords = pickWords(18);
     // Show the red dot again when starting new selection
@@ -251,12 +250,6 @@
   let lastHighlightTime = 0;
   const HIGHLIGHT_DWELL_MS = 250; // time to lock highlight after gaze
 
-  // Dwell delay mechanism
-  let dwellTarget = null;
-  let dwellStartTime = 0;
-  let dwellTimer = null;
-  const DWELL_DELAY_MS = 1000; // 1 second dwell delay
-  const DWELL_DISTANCE_PX = 60; // 60px proximity threshold
 
   // Red ball movement smoothing
   let currentGazeX = 0;
@@ -266,8 +259,6 @@
   let lastGazeUpdate = 0;
   const GAZE_UPDATE_INTERVAL = 16; // ~60fps
   const BASE_MOVEMENT_SPEED = 0.8; // Base interpolation speed
-  const SLOW_MOVEMENT_SPEED = 0.4; // Slower speed near elements
-  const SLOW_DISTANCE_PX = 80; // Distance to start slowing down
 
   async function startGaze(){
     try{
@@ -303,97 +294,8 @@
   function clearTargetVisual(el){ if(!el) return; el.removeAttribute('data-targeted'); }
   function setTargetVisual(el){ if(!el) return; el.setAttribute('data-targeted','true'); }
 
-  // Dwell delay helper functions
-  function clearDwell(){
-    if(dwellTarget){
-      dwellTarget.removeAttribute('data-dwelling');
-      dwellTarget.removeAttribute('data-dwell-progress');
-      dwellTarget.style.removeProperty('--dwell-progress');
-    }
-    if(dwellTimer){
-      clearTimeout(dwellTimer);
-      dwellTimer = null;
-    }
-    dwellTarget = null;
-  }
 
-  function startDwell(element){
-    // Clear any existing dwell
-    clearDwell();
-    
-    // Set new dwell target
-    dwellTarget = element;
-    dwellStartTime = performance.now();
-    element.setAttribute('data-dwelling', 'true');
-    element.setAttribute('data-dwell-progress', '0');
-    element.style.setProperty('--dwell-progress', '0');
-    
-    // Start dwell progress animation
-    const updateDwellProgress = () => {
-      if(!dwellTarget) return;
-      
-      const elapsed = performance.now() - dwellStartTime;
-      const progress = Math.min(100, Math.round((elapsed / DWELL_DELAY_MS) * 100));
-      
-      dwellTarget.setAttribute('data-dwell-progress', progress.toString());
-      dwellTarget.style.setProperty('--dwell-progress', progress.toString());
-      
-      if(elapsed < DWELL_DELAY_MS){
-        requestAnimationFrame(updateDwellProgress);
-      }
-    };
-    updateDwellProgress();
-    
-    // Set timer to activate after dwell delay
-    dwellTimer = setTimeout(() => {
-      if(dwellTarget){
-        // Activate the element (highlight it)
-        if(currentTarget !== dwellTarget){ 
-          clearTargetVisual(currentTarget); 
-          currentTarget = dwellTarget; 
-        }
-        setTargetVisual(currentTarget);
-        clearDwell();
-      }
-    }, DWELL_DELAY_MS);
-  }
 
-  function getDistanceToElement(x, y, element){
-    const rect = element.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    return Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
-  }
-
-  function findNearestGazeableElement(x, y){
-    const gazeableElements = document.querySelectorAll('[data-gazeable="true"], .word-tile');
-    let nearestElement = null;
-    let nearestDistance = Infinity;
-    
-    gazeableElements.forEach(el => {
-      const distance = getDistanceToElement(x, y, el);
-      if(distance < nearestDistance && distance <= DWELL_DISTANCE_PX){
-        nearestDistance = distance;
-        nearestElement = el;
-      }
-    });
-    
-    return nearestElement;
-  }
-
-  function getDistanceToNearestElement(x, y){
-    const gazeableElements = document.querySelectorAll('[data-gazeable="true"], .word-tile');
-    let nearestDistance = Infinity;
-    
-    gazeableElements.forEach(el => {
-      const distance = getDistanceToElement(x, y, el);
-      if(distance < nearestDistance){
-        nearestDistance = distance;
-      }
-    });
-    
-    return nearestDistance;
-  }
 
   function updateGazePosition(){
     const now = performance.now();
@@ -401,35 +303,12 @@
     
     lastGazeUpdate = now;
     
-    // Calculate distance to nearest element
-    const distanceToNearest = getDistanceToNearestElement(targetGazeX, targetGazeY);
-    
-    // Determine movement speed based on proximity
-    let movementSpeed = BASE_MOVEMENT_SPEED;
-    let isSlowMode = false;
-    if(distanceToNearest <= SLOW_DISTANCE_PX){
-      // Gradually slow down as we get closer
-      const proximityFactor = Math.max(0, (SLOW_DISTANCE_PX - distanceToNearest) / SLOW_DISTANCE_PX);
-      movementSpeed = SLOW_MOVEMENT_SPEED + (BASE_MOVEMENT_SPEED - SLOW_MOVEMENT_SPEED) * (1 - proximityFactor);
-      isSlowMode = true;
-    }
-    
     // Smooth interpolation towards target position
     const dx = targetGazeX - currentGazeX;
     const dy = targetGazeY - currentGazeY;
     
-    currentGazeX += dx * movementSpeed;
-    currentGazeY += dy * movementSpeed;
-    
-    // Add visual indicator for slow mode
-    const predictionPoints = document.querySelectorAll('.webgazer-prediction-point');
-    predictionPoints.forEach(point => {
-      if(isSlowMode){
-        point.classList.add('slow-mode');
-      } else {
-        point.classList.remove('slow-mode');
-      }
-    });
+    currentGazeX += dx * BASE_MOVEMENT_SPEED;
+    currentGazeY += dy * BASE_MOVEMENT_SPEED;
     
     // Continue animation
     requestAnimationFrame(updateGazePosition);
@@ -456,33 +335,6 @@
         currentTarget = el; 
       }
       setTargetVisual(currentTarget);
-    }
-    
-    // Only use dwell system for word tiles, not buttons
-    if(el && el.classList.contains('word-tile')){
-      const rect = wordGrid.getBoundingClientRect();
-      if(x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom){
-        // Find the nearest gazeable element within dwell distance
-        const nearestElement = findNearestGazeableElement(x, y);
-        
-        if(nearestElement){
-          // If we found a nearby element and it's not already being dwelled on
-          if(dwellTarget !== nearestElement){
-            // Clear any existing dwell
-            clearDwell();
-            // Start dwelling on the new element
-            startDwell(nearestElement);
-          }
-        } else {
-          // No nearby element, clear any active dwell
-          clearDwell();
-        }
-      } else {
-        clearDwell();
-      }
-    } else {
-      // Not looking at word tiles, clear any active dwell
-      clearDwell();
     }
   }
 
@@ -528,27 +380,7 @@
   function handleBlink(){
     // On blink, either select targeted word or press targeted button
     if(currentTarget){
-      // If it's a button (not a word tile), click immediately
-      if(currentTarget.classList.contains('btn') || currentTarget.id === 'btnStart' || currentTarget.id === 'btnRefresh' || currentTarget.id === 'btnPlay' || currentTarget.id === 'btnPause' || currentTarget.id === 'btnStop'){
-        currentTarget.click();
-      }
-      // If it's a word tile, use the dwell system
-      else if(currentTarget.classList.contains('word-tile')){
-        // Check if we're already dwelling on this element
-        if(dwellTarget === currentTarget){
-          // If already dwelling, complete the selection immediately
-          const word = currentTarget.textContent;
-          if(word && word !== 'New Words'){
-            selectWord(word, currentTarget);
-          } else if(word === 'New Words'){
-            refreshWords();
-          }
-          clearDwell();
-        } else {
-          // Start dwelling on this element
-          startDwell(currentTarget);
-        }
-      }
+      currentTarget.click();
     }
   }
 
