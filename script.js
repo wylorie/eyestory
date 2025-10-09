@@ -69,11 +69,6 @@
   let currentWords = [];
   let selectedWords = [];
 
-  // Lock mechanism state
-  let lockedElement = null;
-  let lockTimer = null;
-  let lockStartTime = 0;
-  const LOCK_DURATION_MS = 3000; // 3 seconds
 
   function shuffle(array){ for(let i=array.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [array[i],array[j]]=[array[j],array[i]];} return array; }
   function pickWords(count){ return shuffle([...WORD_BANK]).slice(0,count); }
@@ -156,73 +151,18 @@
     storySection.hidden = true;
   }
 
-  // Lock mechanism helper functions
-  function clearLock(){
-    if(lockedElement){
-      lockedElement.removeAttribute('data-locked');
-      lockedElement.removeAttribute('data-lock-progress');
-      lockedElement = null;
-    }
-    if(lockTimer){
-      clearTimeout(lockTimer);
-      lockTimer = null;
-    }
-  }
-
-  function startLock(element, word){
-    // Clear any existing lock
-    clearLock();
-    
-    // Set new lock
-    lockedElement = element;
-    lockStartTime = performance.now();
-    element.setAttribute('data-locked', 'true');
-    element.setAttribute('data-lock-progress', '100');
-    
-    // Start countdown animation
-    const updateCountdown = () => {
-      if(!lockedElement) return;
-      
-      const elapsed = performance.now() - lockStartTime;
-      const remaining = Math.max(0, LOCK_DURATION_MS - elapsed);
-      const progress = Math.round((remaining / LOCK_DURATION_MS) * 100);
-      
-      lockedElement.setAttribute('data-lock-progress', progress.toString());
-      lockedElement.style.setProperty('--lock-progress', progress.toString());
-      
-      if(remaining > 0){
-        requestAnimationFrame(updateCountdown);
-      }
-    };
-    updateCountdown();
-    
-    // Set timer to unlock after 3 seconds
-    lockTimer = setTimeout(() => {
-      if(lockedElement){
-        // Actually select the word after the lock period
-        if(!selectedWords.includes(word) && selectedWords.length < 3){
-          selectedWords.push(word);
-          lockedElement.setAttribute('aria-selected','true');
-          console.log('Selected words:', selectedWords.length, selectedWords);
-          renderSelected();
-        }
-        clearLock();
-      }
-    }, LOCK_DURATION_MS);
-  }
-
   function selectWord(word, tile){
-    // If there's already a lock active, ignore new selections
-    if(lockedElement) return;
-    
     // If word is already selected, ignore
     if(selectedWords.includes(word)) return;
     
     // If we already have 3 words, ignore
     if(selectedWords.length >= 3) return;
     
-    // Start the 3-second lock instead of immediate selection
-    startLock(tile, word);
+    // Select the word immediately
+    selectedWords.push(word);
+    tile.setAttribute('aria-selected','true');
+    console.log('Selected words:', selectedWords.length, selectedWords);
+    renderSelected();
   }
 
   btnRefresh.addEventListener('click', refreshWords);
