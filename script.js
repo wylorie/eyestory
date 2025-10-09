@@ -439,31 +439,49 @@
     if(!data) return;
     const x = data.x; const y = data.y;
     
-    // Only process gaze if it's within word grid bounds
-    const rect = wordGrid.getBoundingClientRect();
-    if(x < rect.left || x > rect.right || y < rect.top || y > rect.bottom){
-      // Clear any active dwell when outside the grid
-      clearDwell();
-      return;
-    }
-    
     // Update target position for smooth movement
     targetGazeX = x;
     targetGazeY = y;
     
-    // Find the nearest gazeable element within dwell distance using ACTUAL gaze position
-    const nearestElement = findNearestGazeableElement(x, y);
+    // Check if we're looking at any gazeable element
+    const el = elementAtClient(x, y);
+    if(el !== lastTarget){
+      clearTargetVisual(lastTarget);
+      lastTarget = el;
+      lastHighlightTime = performance.now();
+    }
+    if(el && performance.now() - lastHighlightTime > HIGHLIGHT_DWELL_MS){
+      if(currentTarget !== el){ 
+        clearTargetVisual(currentTarget); 
+        currentTarget = el; 
+      }
+      setTargetVisual(currentTarget);
+    }
     
-    if(nearestElement){
-      // If we found a nearby element and it's not already being dwelled on
-      if(dwellTarget !== nearestElement){
-        // Clear any existing dwell
+    // Only use dwell system for word tiles, not buttons
+    if(el && el.classList.contains('word-tile')){
+      const rect = wordGrid.getBoundingClientRect();
+      if(x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom){
+        // Find the nearest gazeable element within dwell distance
+        const nearestElement = findNearestGazeableElement(x, y);
+        
+        if(nearestElement){
+          // If we found a nearby element and it's not already being dwelled on
+          if(dwellTarget !== nearestElement){
+            // Clear any existing dwell
+            clearDwell();
+            // Start dwelling on the new element
+            startDwell(nearestElement);
+          }
+        } else {
+          // No nearby element, clear any active dwell
+          clearDwell();
+        }
+      } else {
         clearDwell();
-        // Start dwelling on the new element
-        startDwell(nearestElement);
       }
     } else {
-      // No nearby element, clear any active dwell
+      // Not looking at word tiles, clear any active dwell
       clearDwell();
     }
   }
@@ -510,7 +528,27 @@
   function handleBlink(){
     // On blink, either select targeted word or press targeted button
     if(currentTarget){
-      currentTarget.click();
+      // If it's a button (not a word tile), click immediately
+      if(currentTarget.classList.contains('btn') || currentTarget.id === 'btnStart' || currentTarget.id === 'btnRefresh' || currentTarget.id === 'btnPlay' || currentTarget.id === 'btnPause' || currentTarget.id === 'btnStop'){
+        currentTarget.click();
+      }
+      // If it's a word tile, use the dwell system
+      else if(currentTarget.classList.contains('word-tile')){
+        // Check if we're already dwelling on this element
+        if(dwellTarget === currentTarget){
+          // If already dwelling, complete the selection immediately
+          const word = currentTarget.textContent;
+          if(word && word !== 'New Words'){
+            selectWord(word, currentTarget);
+          } else if(word === 'New Words'){
+            refreshWords();
+          }
+          clearDwell();
+        } else {
+          // Start dwelling on this element
+          startDwell(currentTarget);
+        }
+      }
     }
   }
 
