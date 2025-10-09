@@ -136,6 +136,10 @@
     // Auto-generate story when 3 words are selected
     if(selectedWords.length === 3){
       console.log('Auto-generating story with words:', selectedWords);
+      // Hide the red dot after selecting 3 words
+      if(gazeActive && typeof webgazer !== 'undefined'){
+        webgazer.showPredictionPoints(false);
+      }
       generateStory();
     }
   }
@@ -147,6 +151,10 @@
     selectedWords = [];
     currentWords = pickWords(18);
     console.log('Generated words:', currentWords); // Debug log
+    // Show the red dot again when starting new selection
+    if(gazeActive && typeof webgazer !== 'undefined'){
+      webgazer.showPredictionPoints(true);
+    }
     renderGrid();
     renderSelected();
     storySection.hidden = true;
@@ -590,6 +598,5 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
-
 
 
