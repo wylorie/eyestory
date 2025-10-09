@@ -255,8 +255,8 @@
   let dwellTarget = null;
   let dwellStartTime = 0;
   let dwellTimer = null;
-  const DWELL_DELAY_MS = 3000; // 3 seconds dwell delay
-  const DWELL_DISTANCE_PX = 50; // 50px proximity threshold
+  const DWELL_DELAY_MS = 1000; // 1 second dwell delay
+  const DWELL_DISTANCE_PX = 60; // 60px proximity threshold
 
   // Red ball movement smoothing
   let currentGazeX = 0;
@@ -265,8 +265,8 @@
   let targetGazeY = 0;
   let lastGazeUpdate = 0;
   const GAZE_UPDATE_INTERVAL = 16; // ~60fps
-  const BASE_MOVEMENT_SPEED = 0.3; // Base interpolation speed
-  const SLOW_MOVEMENT_SPEED = 0.1; // Slower speed near elements
+  const BASE_MOVEMENT_SPEED = 0.8; // Base interpolation speed
+  const SLOW_MOVEMENT_SPEED = 0.4; // Slower speed near elements
   const SLOW_DISTANCE_PX = 80; // Distance to start slowing down
 
   async function startGaze(){
@@ -277,22 +277,6 @@
         .showVideoPreview(false)
         .showPredictionPoints(true)
         .begin();
-      
-      // Constrain prediction points to word grid area only
-      const rect = wordGrid.getBoundingClientRect();
-      webgazer.setPredictionPointsFilter((x, y) => {
-        // Only show red dot within the word grid bounds
-        return x >= rect.left && x <= rect.right && 
-               y >= rect.top && y <= rect.bottom;
-      });
-      
-      // Also hide prediction points outside the grid
-      webgazer.showPredictionPoints(true);
-      webgazer.setPredictionPointsFilter((x, y) => {
-        const gridRect = wordGrid.getBoundingClientRect();
-        return x >= gridRect.left && x <= gridRect.right && 
-               y >= gridRect.top && y <= gridRect.bottom;
-      });
       
       gazeActive = true;
       statusTracking.textContent = 'Active';
@@ -447,16 +431,6 @@
       }
     });
     
-    // Update WebGazer's prediction points to use smoothed position
-    if(typeof webgazer !== 'undefined' && webgazer.setPredictionPointsFilter){
-      webgazer.setPredictionPointsFilter((x, y) => {
-        // Use smoothed position instead of raw gaze position
-        const rect = wordGrid.getBoundingClientRect();
-        return currentGazeX >= rect.left && currentGazeX <= rect.right && 
-               currentGazeY >= rect.top && currentGazeY <= rect.bottom;
-      });
-    }
-    
     // Continue animation
     requestAnimationFrame(updateGazePosition);
   }
@@ -477,8 +451,8 @@
     targetGazeX = x;
     targetGazeY = y;
     
-    // Find the nearest gazeable element within dwell distance using smoothed position
-    const nearestElement = findNearestGazeableElement(currentGazeX, currentGazeY);
+    // Find the nearest gazeable element within dwell distance using ACTUAL gaze position
+    const nearestElement = findNearestGazeableElement(x, y);
     
     if(nearestElement){
       // If we found a nearby element and it's not already being dwelled on
