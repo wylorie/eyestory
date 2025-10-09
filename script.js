@@ -18,7 +18,6 @@
 
   const btnStart = document.getElementById('btnStart');
   const btnRefresh = document.getElementById('btnRefresh');
-  const btnGenerate = document.getElementById('btnGenerate');
   const btnPlay = document.getElementById('btnPlay');
   const btnPause = document.getElementById('btnPause');
   const btnStop = document.getElementById('btnStop');
