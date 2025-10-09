@@ -141,8 +141,9 @@
   }
 
   function refreshWords(){
-    // Clear any active locks when refreshing
+    // Clear any active locks and dwell when refreshing
     clearLock();
+    clearDwell();
     selectedWords = [];
     currentWords = pickWords(18);
     console.log('Generated words:', currentWords); // Debug log
@@ -239,6 +240,13 @@
   let lastHighlightTime = 0;
   const HIGHLIGHT_DWELL_MS = 250; // time to lock highlight after gaze
 
+  // Dwell delay mechanism
+  let dwellTarget = null;
+  let dwellStartTime = 0;
+  let dwellTimer = null;
+  const DWELL_DELAY_MS = 3000; // 3 seconds dwell delay
+  const DWELL_DISTANCE_PX = 50; // 50px proximity threshold
+
   async function startGaze(){
     try{
       statusTracking.textContent = 'Starting…';
@@ -282,6 +290,84 @@
   function clearTargetVisual(el){ if(!el) return; el.removeAttribute('data-targeted'); }
   function setTargetVisual(el){ if(!el) return; el.setAttribute('data-targeted','true'); }
 
+  // Dwell delay helper functions
+  function clearDwell(){
+    if(dwellTarget){
+      dwellTarget.removeAttribute('data-dwelling');
+      dwellTarget.removeAttribute('data-dwell-progress');
+      dwellTarget.style.removeProperty('--dwell-progress');
+    }
+    if(dwellTimer){
+      clearTimeout(dwellTimer);
+      dwellTimer = null;
+    }
+    dwellTarget = null;
+  }
+
+  function startDwell(element){
+    // Clear any existing dwell
+    clearDwell();
+    
+    // Set new dwell target
+    dwellTarget = element;
+    dwellStartTime = performance.now();
+    element.setAttribute('data-dwelling', 'true');
+    element.setAttribute('data-dwell-progress', '0');
+    element.style.setProperty('--dwell-progress', '0');
+    
+    // Start dwell progress animation
+    const updateDwellProgress = () => {
+      if(!dwellTarget) return;
+      
+      const elapsed = performance.now() - dwellStartTime;
+      const progress = Math.min(100, Math.round((elapsed / DWELL_DELAY_MS) * 100));
+      
+      dwellTarget.setAttribute('data-dwell-progress', progress.toString());
+      dwellTarget.style.setProperty('--dwell-progress', progress.toString());
+      
+      if(elapsed < DWELL_DELAY_MS){
+        requestAnimationFrame(updateDwellProgress);
+      }
+    };
+    updateDwellProgress();
+    
+    // Set timer to activate after dwell delay
+    dwellTimer = setTimeout(() => {
+      if(dwellTarget){
+        // Activate the element (highlight it)
+        if(currentTarget !== dwellTarget){ 
+          clearTargetVisual(currentTarget); 
+          currentTarget = dwellTarget; 
+        }
+        setTargetVisual(currentTarget);
+        clearDwell();
+      }
+    }, DWELL_DELAY_MS);
+  }
+
+  function getDistanceToElement(x, y, element){
+    const rect = element.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    return Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+  }
+
+  function findNearestGazeableElement(x, y){
+    const gazeableElements = document.querySelectorAll('[data-gazeable="true"], .word-tile');
+    let nearestElement = null;
+    let nearestDistance = Infinity;
+    
+    gazeableElements.forEach(el => {
+      const distance = getDistanceToElement(x, y, el);
+      if(distance < nearestDistance && distance <= DWELL_DISTANCE_PX){
+        nearestDistance = distance;
+        nearestElement = el;
+      }
+    });
+    
+    return nearestElement;
+  }
+
   function gazeListener(data, timestamp){
     if(!data) return;
     const x = data.x; const y = data.y;
@@ -289,18 +375,25 @@
     // Only process gaze if it's within word grid bounds
     const rect = wordGrid.getBoundingClientRect();
     if(x < rect.left || x > rect.right || y < rect.top || y > rect.bottom){
-      return; // Don't process gaze outside word grid
+      // Clear any active dwell when outside the grid
+      clearDwell();
+      return;
     }
     
-    const el = elementAtClient(x,y);
-    if(el !== lastTarget){
-      clearTargetVisual(lastTarget);
-      lastTarget = el;
-      lastHighlightTime = performance.now();
-    }
-    if(el && performance.now() - lastHighlightTime > HIGHLIGHT_DWELL_MS){
-      if(currentTarget !== el){ clearTargetVisual(currentTarget); currentTarget = el; }
-      setTargetVisual(currentTarget);
+    // Find the nearest gazeable element within dwell distance
+    const nearestElement = findNearestGazeableElement(x, y);
+    
+    if(nearestElement){
+      // If we found a nearby element and it's not already being dwelled on
+      if(dwellTarget !== nearestElement){
+        // Clear any existing dwell
+        clearDwell();
+        // Start dwelling on the new element
+        startDwell(nearestElement);
+      }
+    } else {
+      // No nearby element, clear any active dwell
+      clearDwell();
     }
   }
 
