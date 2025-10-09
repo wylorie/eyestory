@@ -173,11 +173,9 @@
   
   // Also try to initialize immediately if DOM is already ready
   if (document.readyState !== 'loading') {
-    setTimeout(() => {
-      if (currentWords.length === 0) {
-        refreshWords();
-      }
-    }, 100);
+    if (currentWords.length === 0) {
+      refreshWords();
+    }
   }
 
   // Gaze targeting via WebGazer
@@ -286,12 +284,7 @@
       statusTracking.textContent = 'Use HTTPS to start';
       return;
     }
-    if(typeof window.webgazer === 'undefined'){
-      // Library not yet ready; retry shortly
-      setTimeout(tryAutoStartGaze, 400);
-      return;
-    }
-    if(!gazeActive){
+    if(typeof window.webgazer !== 'undefined' && !gazeActive){
       startGaze();
     }
   }
@@ -346,7 +339,7 @@
               onResults._lastBlink = now;
               statusBlink.textContent = 'Blink';
               handleBlink();
-              setTimeout(()=> statusBlink.textContent = 'Ready', 350);
+              statusBlink.textContent = 'Ready';
             }
           }
         }
