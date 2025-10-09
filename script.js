@@ -70,6 +70,12 @@
   let currentWords = [];
   let selectedWords = [];
 
+  // Lock mechanism state
+  let lockedElement = null;
+  let lockTimer = null;
+  let lockStartTime = 0;
+  const LOCK_DURATION_MS = 3000; // 3 seconds
+
   function shuffle(array){ for(let i=array.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [array[i],array[j]]=[array[j],array[i]];} return array; }
   function pickWords(count){ return shuffle([...WORD_BANK]).slice(0,count); }
 
@@ -429,5 +435,6 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
+
 
 
