@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Debug - EyeStory</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="bg">
+    <canvas id="bgCanvas" aria-hidden="true"></canvas>
+  </div>
+
+  <main class="app" role="main">
+    <header class="app__header">
+      <div class="brand">
+        <span class="brand__icon" aria-hidden="true">👁️</span>
+        <h1 class="brand__title">EyeStory</h1>
+      </div>
+      <p class="tagline">Create rich stories using only your eyes and blinks.</p>
+      <div class="controls" role="toolbar" aria-label="Primary controls">
+        <button id="btnStart" class="btn btn--primary" data-gazeable="true">Start Eye Tracking</button>
+        <button id="btnRefresh" class="btn" data-gazeable="true">New Words</button>
+      </div>
+      <div class="status" aria-live="polite">
+        <div><strong>Eye Tracking:</strong> <span id="statusTracking">Inactive</span></div>
+        <div><strong>Blink Detection:</strong> <span id="statusBlink">Calibrating…</span></div>
+        <div><strong>Selected:</strong> <span id="statusSelected">0/3</span></div>
+      </div>
+    </header>
+
+    <section class="words" aria-labelledby="wordsTitle">
+      <h2 id="wordsTitle" class="section__title">Look at a word and blink to select (need 3)</h2>
+      <div id="wordGrid" class="word-grid" role="list"></div>
+      <div class="selected" aria-live="polite">
+        <h3 class="selected__title">Selected Words</h3>
+        <div id="selectedList" class="selected__chips" role="list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    console.log('Debug script starting...');
+    
+    // Test basic functionality
+    const wordGrid = document.getElementById('wordGrid');
+    console.log('wordGrid found:', !!wordGrid);
+    
+    if (wordGrid) {
+      // Add some test words
+      const testWords = ['test', 'word', 'button', 'grid', 'display'];
+      testWords.forEach(word => {
+        const tile = document.createElement('button');
+        tile.className = 'word-tile';
+        tile.textContent = word;
+        tile.setAttribute('data-gazeable', 'true');
+        wordGrid.appendChild(tile);
+      });
+      console.log('Test words added to grid');
+    }
+    
+    console.log('Debug script completed');
+  </script>
+</body>
+</html>
