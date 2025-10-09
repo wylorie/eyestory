@@ -5,7 +5,6 @@
 // text-to-speech playback.
 
 (function(){
-  console.log('EyeStory script starting...');
   // DOM refs
   const body = document.body;
   const wordGrid = document.getElementById('wordGrid');
@@ -16,12 +15,6 @@
   const overlay = document.getElementById('overlay');
   const storySection = document.getElementById('storySection');
   const storyTextEl = document.getElementById('storyText');
-
-  console.log('DOM elements found:', {
-    wordGrid: !!wordGrid,
-    selectedList: !!selectedList,
-    statusTracking: !!statusTracking
-  });
 
   const btnStart = document.getElementById('btnStart');
   const btnRefresh = document.getElementById('btnRefresh');
@@ -86,14 +79,11 @@
   function pickWords(count){ return shuffle([...WORD_BANK]).slice(0,count); }
 
   function renderGrid(){
-    console.log('renderGrid called, wordGrid:', wordGrid);
     if (!wordGrid) {
       console.error('wordGrid element not found!');
       return;
     }
     wordGrid.innerHTML = '';
-    console.log('Rendering', currentWords.length, 'words');
-    console.log('currentWords:', currentWords);
     
     currentWords.forEach(w => {
       const tile = document.createElement('button');
@@ -153,13 +143,11 @@
   }
 
   function refreshWords(){
-    console.log('refreshWords called');
     // Clear any active locks and dwell when refreshing
     clearLock();
     clearDwell();
     selectedWords = [];
     currentWords = pickWords(18);
-    console.log('Generated words:', currentWords); // Debug log
     // Show the red dot again when starting new selection
     if(gazeActive && typeof webgazer !== 'undefined'){
       webgazer.showPredictionPoints(true);
@@ -242,21 +230,18 @@
   
   // Ensure words are loaded on page load
   window.addEventListener('load', () => {
-    console.log('Window loaded, initializing...');
     if (currentWords.length === 0) {
-      console.log('No words found, generating...');
       refreshWords();
     }
   });
   
   // Also try to initialize immediately if DOM is already ready
-  if (document.readyState === 'loading') {
-    console.log('DOM still loading, waiting for load event');
-  } else {
-    console.log('DOM already ready, initializing immediately');
-    if (currentWords.length === 0) {
-      refreshWords();
-    }
+  if (document.readyState !== 'loading') {
+    setTimeout(() => {
+      if (currentWords.length === 0) {
+        refreshWords();
+      }
+    }, 100);
   }
 
   // Gaze targeting via WebGazer
@@ -615,8 +600,6 @@
   // Blink-press all buttons and tiles: handled via handleBlink() calling click() on targeted element
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
-  console.log('EyeStory script loaded successfully');
 })();
-
 
 
