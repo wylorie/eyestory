@@ -12,7 +12,6 @@
   const statusTracking = document.getElementById('statusTracking');
   const statusBlink = document.getElementById('statusBlink');
   const statusSelected = document.getElementById('statusSelected');
-  const overlay = document.getElementById('overlay');
   const storySection = document.getElementById('storySection');
   const storyTextEl = document.getElementById('storyText');
 
@@ -138,8 +137,6 @@
   }
 
   function refreshWords(){
-    // Clear any active locks when refreshing
-    clearLock();
     selectedWords = [];
     currentWords = pickWords(18);
     // Show the red dot again when starting new selection
@@ -437,16 +434,11 @@
 
   async function generateStory(){
     if(selectedWords.length !== 3) return;
-    overlay.hidden = false;
-    try{
-      const story = generateLongStory(selectedWords);
-      storyTextEl.textContent = story;
-      storySection.hidden = false;
-      // Scroll into view
-      storySection.scrollIntoView({behavior:'smooth'});
-    } finally {
-      overlay.hidden = true;
-    }
+    const story = generateLongStory(selectedWords);
+    storyTextEl.textContent = story;
+    storySection.hidden = false;
+    // Scroll into view
+    storySection.scrollIntoView({behavior:'smooth'});
   }
 
   // Text-to-Speech
