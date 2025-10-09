@@ -141,6 +141,8 @@
   }
 
   function refreshWords(){
+    // Clear any active locks when refreshing
+    clearLock();
     selectedWords = [];
     currentWords = pickWords(18);
     console.log('Generated words:', currentWords); // Debug log
@@ -149,13 +151,73 @@
     storySection.hidden = true;
   }
 
+  // Lock mechanism helper functions
+  function clearLock(){
+    if(lockedElement){
+      lockedElement.removeAttribute('data-locked');
+      lockedElement.removeAttribute('data-lock-progress');
+      lockedElement = null;
+    }
+    if(lockTimer){
+      clearTimeout(lockTimer);
+      lockTimer = null;
+    }
+  }
+
+  function startLock(element, word){
+    // Clear any existing lock
+    clearLock();
+    
+    // Set new lock
+    lockedElement = element;
+    lockStartTime = performance.now();
+    element.setAttribute('data-locked', 'true');
+    element.setAttribute('data-lock-progress', '100');
+    
+    // Start countdown animation
+    const updateCountdown = () => {
+      if(!lockedElement) return;
+      
+      const elapsed = performance.now() - lockStartTime;
+      const remaining = Math.max(0, LOCK_DURATION_MS - elapsed);
+      const progress = Math.round((remaining / LOCK_DURATION_MS) * 100);
+      
+      lockedElement.setAttribute('data-lock-progress', progress.toString());
+      lockedElement.style.setProperty('--lock-progress', progress.toString());
+      
+      if(remaining > 0){
+        requestAnimationFrame(updateCountdown);
+      }
+    };
+    updateCountdown();
+    
+    // Set timer to unlock after 3 seconds
+    lockTimer = setTimeout(() => {
+      if(lockedElement){
+        // Actually select the word after the lock period
+        if(!selectedWords.includes(word) && selectedWords.length < 3){
+          selectedWords.push(word);
+          lockedElement.setAttribute('aria-selected','true');
+          console.log('Selected words:', selectedWords.length, selectedWords);
+          renderSelected();
+        }
+        clearLock();
+      }
+    }, LOCK_DURATION_MS);
+  }
+
   function selectWord(word, tile){
+    // If there's already a lock active, ignore new selections
+    if(lockedElement) return;
+    
+    // If word is already selected, ignore
     if(selectedWords.includes(word)) return;
+    
+    // If we already have 3 words, ignore
     if(selectedWords.length >= 3) return;
-    selectedWords.push(word);
-    tile.setAttribute('aria-selected','true');
-    console.log('Selected words:', selectedWords.length, selectedWords);
-    renderSelected();
+    
+    // Start the 3-second lock instead of immediate selection
+    startLock(tile, word);
   }
 
   btnRefresh.addEventListener('click', refreshWords);
