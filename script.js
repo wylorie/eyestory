@@ -258,6 +258,17 @@
   const DWELL_DELAY_MS = 3000; // 3 seconds dwell delay
   const DWELL_DISTANCE_PX = 50; // 50px proximity threshold
 
+  // Red ball movement smoothing
+  let currentGazeX = 0;
+  let currentGazeY = 0;
+  let targetGazeX = 0;
+  let targetGazeY = 0;
+  let lastGazeUpdate = 0;
+  const GAZE_UPDATE_INTERVAL = 16; // ~60fps
+  const BASE_MOVEMENT_SPEED = 0.3; // Base interpolation speed
+  const SLOW_MOVEMENT_SPEED = 0.1; // Slower speed near elements
+  const SLOW_DISTANCE_PX = 80; // Distance to start slowing down
+
   async function startGaze(){
     try{
       statusTracking.textContent = 'Starting…';
@@ -285,6 +296,13 @@
       
       gazeActive = true;
       statusTracking.textContent = 'Active';
+      
+      // Start smooth movement animation
+      currentGazeX = 0;
+      currentGazeY = 0;
+      targetGazeX = 0;
+      targetGazeY = 0;
+      updateGazePosition();
     }catch(err){
       console.error(err);
       statusTracking.textContent = 'Error';
@@ -379,6 +397,70 @@
     return nearestElement;
   }
 
+  function getDistanceToNearestElement(x, y){
+    const gazeableElements = document.querySelectorAll('[data-gazeable="true"], .word-tile');
+    let nearestDistance = Infinity;
+    
+    gazeableElements.forEach(el => {
+      const distance = getDistanceToElement(x, y, el);
+      if(distance < nearestDistance){
+        nearestDistance = distance;
+      }
+    });
+    
+    return nearestDistance;
+  }
+
+  function updateGazePosition(){
+    const now = performance.now();
+    if(now - lastGazeUpdate < GAZE_UPDATE_INTERVAL) return;
+    
+    lastGazeUpdate = now;
+    
+    // Calculate distance to nearest element
+    const distanceToNearest = getDistanceToNearestElement(targetGazeX, targetGazeY);
+    
+    // Determine movement speed based on proximity
+    let movementSpeed = BASE_MOVEMENT_SPEED;
+    let isSlowMode = false;
+    if(distanceToNearest <= SLOW_DISTANCE_PX){
+      // Gradually slow down as we get closer
+      const proximityFactor = Math.max(0, (SLOW_DISTANCE_PX - distanceToNearest) / SLOW_DISTANCE_PX);
+      movementSpeed = SLOW_MOVEMENT_SPEED + (BASE_MOVEMENT_SPEED - SLOW_MOVEMENT_SPEED) * (1 - proximityFactor);
+      isSlowMode = true;
+    }
+    
+    // Smooth interpolation towards target position
+    const dx = targetGazeX - currentGazeX;
+    const dy = targetGazeY - currentGazeY;
+    
+    currentGazeX += dx * movementSpeed;
+    currentGazeY += dy * movementSpeed;
+    
+    // Add visual indicator for slow mode
+    const predictionPoints = document.querySelectorAll('.webgazer-prediction-point');
+    predictionPoints.forEach(point => {
+      if(isSlowMode){
+        point.classList.add('slow-mode');
+      } else {
+        point.classList.remove('slow-mode');
+      }
+    });
+    
+    // Update WebGazer's prediction points to use smoothed position
+    if(typeof webgazer !== 'undefined' && webgazer.setPredictionPointsFilter){
+      webgazer.setPredictionPointsFilter((x, y) => {
+        // Use smoothed position instead of raw gaze position
+        const rect = wordGrid.getBoundingClientRect();
+        return currentGazeX >= rect.left && currentGazeX <= rect.right && 
+               currentGazeY >= rect.top && currentGazeY <= rect.bottom;
+      });
+    }
+    
+    // Continue animation
+    requestAnimationFrame(updateGazePosition);
+  }
+
   function gazeListener(data, timestamp){
     if(!data) return;
     const x = data.x; const y = data.y;
@@ -391,8 +473,12 @@
       return;
     }
     
-    // Find the nearest gazeable element within dwell distance
-    const nearestElement = findNearestGazeableElement(x, y);
+    // Update target position for smooth movement
+    targetGazeX = x;
+    targetGazeY = y;
+    
+    // Find the nearest gazeable element within dwell distance using smoothed position
+    const nearestElement = findNearestGazeableElement(currentGazeX, currentGazeY);
     
     if(nearestElement){
       // If we found a nearby element and it's not already being dwelled on
@@ -601,5 +687,6 @@
   // Ensure buttons have data-gazeable attribute in HTML (already set).
 
 })();
+
 
 
